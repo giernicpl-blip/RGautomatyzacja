@@ -2,7 +2,7 @@
 
 Automatyzacje dla małych firm — raporty, dane i powiadomienia, które robią się same.
 
-**Strona:** https://giernicpl-blip.github.io/RGautomatyzacja/
+**Strona:** https://giernicpl-blip.github.io/RGautomatyzacja/index.html
 **Demo dashboardu:** https://giernicpl-blip.github.io/RGautomatyzacja/dashboard.html
 **Kontakt:** giernicpl@gmail.com
 
