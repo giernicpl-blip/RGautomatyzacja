@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RGAutomatyzacja — automatyzacje dla małych firm: raporty, dane i powiadomienia, które robią się same</title>
+<meta name="description" content="Automatyzuję powtarzalną, ręczną robotę w małych firmach: raporty, import danych, dashboardy, powiadomienia. Na co dzień automatyk przemysłowy. Płatność przez Useme, po odbiorze.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDF1F4;
+    --ink:#141F2A;
+    --panel:#17222D;
+    --panel-line:#2A3946;
+    --amber:#F2A70A;
+    --orange:#E8730C;
+    --green:#2AA55E;
+    --grey:#5D6C79;
+    --card:#FFFFFF;
+    --radius:10px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:17px;
+    line-height:1.6;
+  }
+  h1,h2,h3{font-family:'Space Grotesk',sans-serif;line-height:1.15}
+  .mono{font-family:'IBM Plex Mono',monospace}
+  a{color:inherit}
+  a:focus-visible,button:focus-visible{outline:3px solid var(--orange);outline-offset:3px;border-radius:4px}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+  /* pasek ostrzegawczy — sygnatura */
+  .hazard{
+    height:8px;
+    background:repeating-linear-gradient(-45deg,var(--amber) 0 14px,var(--ink) 14px 28px);
+  }
+
+  header{padding:20px 0}
+  .header-in{display:flex;justify-content:space-between;align-items:center;gap:16px}
+  .logo{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:15px;letter-spacing:.02em}
+  .logo .dot{color:var(--green)}
+  .header-cta{
+    font-size:14px;font-weight:600;text-decoration:none;
+    padding:9px 18px;border:2px solid var(--ink);border-radius:999px;
+    transition:background .15s,color .15s;
+  }
+  .header-cta:hover{background:var(--ink);color:var(--paper)}
+
+  /* HERO */
+  .hero{padding:56px 0 72px}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--grey);margin-bottom:16px;
+  }
+  .hero h1{font-size:clamp(30px,4.4vw,46px);font-weight:700;margin-bottom:18px}
+  .hero h1 em{font-style:normal;color:var(--orange)}
+  .hero p.lead{font-size:18px;color:#33414E;max-width:46ch;margin-bottom:28px}
+  .cta-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .btn{
+    display:inline-block;text-decoration:none;font-weight:600;font-size:16px;
+    padding:14px 26px;border-radius:999px;border:2px solid var(--ink);
+    transition:transform .12s,box-shadow .12s;
+  }
+  .btn-primary{background:var(--ink);color:#fff}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(20,31,42,.25)}
+  .btn-ghost:hover{background:#fff}
+  .cta-note{font-size:14px;color:var(--grey)}
+
+  /* PANEL HMI */
+  .hmi{
+    background:var(--panel);border-radius:14px;overflow:hidden;
+    box-shadow:0 18px 50px rgba(20,31,42,.28);
+    border:1px solid var(--panel-line);
+  }
+  .hmi-bar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 16px;border-bottom:1px solid var(--panel-line);
+  }
+  .hmi-title{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.06em;color:#8FA0AE}
+  .hmi-lamp{display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--green)}
+  .lamp{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+  @keyframes pulse{50%{opacity:.45}}
+  .hmi-log{padding:18px 16px 22px;font-family:'IBM Plex Mono',monospace;font-size:13.5px;line-height:2.05;color:#C8D3DC}
+  .hmi-log .row{display:flex;gap:10px;opacity:0;animation:reveal .4s forwards}
+  .hmi-log .row:nth-child(1){animation-delay:.3s}
+  .hmi-log .row:nth-child(2){animation-delay:1.1s}
+  .hmi-log .row:nth-child(3){animation-delay:1.9s}
+  .hmi-log .row:nth-child(4){animation-delay:2.7s}
+  .hmi-log .row:nth-child(5){animation-delay:3.5s}
+  @keyframes reveal{to{opacity:1}}
+  .hmi-log .t{color:#66788A}
+  .hmi-log .ok{color:var(--green);font-weight:500}
+  .hmi-log .task{color:#E6EDF2}
+  .hmi-foot{
+    padding:12px 16px;border-top:1px solid var(--panel-line);
+    font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8FA0AE;
+    display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;
+  }
+  .hmi-foot b{color:var(--amber);font-weight:500}
+
+  /* SEKCJE */
+  section{padding:64px 0}
+  .sec-head{margin-bottom:36px}
+  .sec-head h2{font-size:clamp(24px,3vw,32px);margin-top:8px}
+
+  /* CO AUTOMATYZUJĘ */
+  .auto-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .auto-card{
+    background:var(--card);border-radius:var(--radius);padding:24px;
+    border:1px solid #DDE4EA;
+  }
+  .auto-card .mono{font-size:12.5px;color:var(--grey);letter-spacing:.05em;text-transform:uppercase;display:block;margin-bottom:10px}
+  .auto-card h3{font-size:19px;margin-bottom:8px}
+  .auto-card p{font-size:15.5px;color:#3B4A57}
+
+  /* PAKIETY */
+  .packs{background:#fff;border-top:1px solid #DDE4EA;border-bottom:1px solid #DDE4EA}
+  .pack-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:22px}
+  .pack{
+    border:1.5px solid #D6DEE5;border-radius:var(--radius);padding:26px 24px;
+    display:flex;flex-direction:column;background:var(--paper);
+    transition:transform .15s,box-shadow .15s;
+  }
+  .pack:hover{transform:translateY(-4px);box-shadow:0 10px 26px rgba(20,31,42,.10)}
+  .pack.featured{border-color:var(--orange);background:#fff;position:relative}
+  .pack.featured::before{
+    content:"Najczęściej wybierany";
+    position:absolute;top:-12px;left:22px;
+    background:var(--orange);color:#fff;font-size:12px;font-weight:600;
+    padding:3px 12px;border-radius:999px;
+  }
+  .pack .kod{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--grey);letter-spacing:.06em}
+  .pack h3{font-size:21px;margin:6px 0 4px}
+  .pack .cena{font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:700;margin-bottom:14px}
+  .pack .cena small{font-size:15px;font-weight:500;color:var(--grey)}
+  .pack p{font-size:15.5px;color:#3B4A57;flex:1}
+  .pack .czas{margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--grey)}
+  .abo{
+    display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:space-between;
+    border:1.5px dashed #B9C5CF;border-radius:var(--radius);padding:20px 24px;background:var(--paper);
+  }
+  .abo h3{font-size:18px}
+  .abo p{font-size:15px;color:#3B4A57;max-width:56ch}
+  .abo .cena{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;white-space:nowrap}
+
+  /* ZAUFANIE */
+  .trust-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:44px;align-items:start}
+  .trust p{margin-bottom:14px;color:#2C3A47}
+  .facts{list-style:none;display:grid;gap:12px}
+  .facts li{
+    background:#fff;border:1px solid #DDE4EA;border-radius:var(--radius);
+    padding:14px 18px;font-size:15.5px;display:flex;gap:12px;align-items:baseline;
+  }
+  .facts .mono{color:var(--green);font-size:14px}
+
+  /* KONTAKT */
+  .contact{background:var(--panel);color:#E6EDF2}
+  .contact .sec-head h2{color:#fff}
+  .contact .eyebrow{color:#8FA0AE}
+  .contact p{max-width:58ch;color:#B9C6D0;margin-bottom:26px}
+  .contact .btn-primary{background:var(--amber);border-color:var(--amber);color:var(--ink)}
+  .contact .btn-primary:hover{box-shadow:0 6px 18px rgba(242,167,10,.35)}
+  .contact .mono-note{font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:#8FA0AE;margin-top:22px}
+
+  footer{padding:22px 0;font-size:13.5px;color:var(--grey)}
+  .foot-in{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important}
+    .hmi-log .row{opacity:1}
+  }
+  @media (max-width:860px){
+    .hero-grid{grid-template-columns:1fr;gap:36px}
+    .auto-grid,.pack-grid{grid-template-columns:1fr}
+    .trust-grid{grid-template-columns:1fr}
+    section{padding:48px 0}
+  }
+</style>
+</head>
+<body>
+
+<div class="hazard" aria-hidden="true"></div>
+
+<header class="wrap">
+  <div class="header-in">
+    <span class="logo">RGAutomatyzacja<span class="dot">●</span></span>
+    <a class="header-cta" href="#kontakt">Umów 15 minut</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap">
+    <div class="hero-grid">
+      <div>
+        <p class="eyebrow">Automatyzacje dla małych firm</p>
+        <h1>Nudna, ręczna robota w Twojej firmie może <em>robić się sama</em>.</h1>
+        <p class="lead">Raporty, przeklejanie danych, powiadomienia — zadania, które zajmują godziny każdego tygodnia, zamieniam w automaty. Na co dzień utrzymuję w ruchu roboty i linie produkcyjne. Twoje biuro to przy tym prosta sprawa.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#kontakt">Napisz do mnie</a>
+          <a class="btn btn-ghost" href="#pakiety">Zobacz pakiety</a>
+        </div>
+      </div>
+
+      <div class="hmi" role="img" aria-label="Panel pokazujący zadania firmowe wykonane automatycznie">
+        <div class="hmi-bar">
+          <span class="hmi-title">TWOJA-FIRMA / AUTOMATY</span>
+          <span class="hmi-lamp"><span class="lamp"></span>PRACA</span>
+        </div>
+        <div class="hmi-log">
+          <div class="row"><span class="t">08:00</span><span class="task">Raport sprzedaży wysłany na e-mail</span><span class="ok">OK</span></div>
+          <div class="row"><span class="t">08:00</span><span class="task">Zamówienia z Allegro → arkusz</span><span class="ok">OK</span></div>
+          <div class="row"><span class="t">08:01</span><span class="task">Faktury zapisane w folderze</span><span class="ok">OK</span></div>
+          <div class="row"><span class="t">09:30</span><span class="task">SMS-y z przypomnieniem do klientów</span><span class="ok">OK</span></div>
+          <div class="row"><span class="t">17:00</span><span class="task">Dashboard zaktualizowany</span><span class="ok">OK</span></div>
+        </div>
+        <div class="hmi-foot">
+          <span>Czas zaoszczędzony dziś: <b>2 h 40 min</b></span>
+          <span>Twój udział: <b>0 kliknięć</b></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="przyklady" class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Przykłady z życia</p>
+      <h2>Co najczęściej automatyzuję</h2>
+    </div>
+    <div class="auto-grid">
+      <div class="auto-card">
+        <span class="mono">Raporty</span>
+        <h3>Raport sam przychodzi rano</h3>
+        <p>Zamiast sklejać dane z Excela w każdy poniedziałek — gotowe podsumowanie sprzedaży ląduje na Twojej skrzynce codziennie o 8:00.</p>
+      </div>
+      <div class="auto-card">
+        <span class="mono">Dane</span>
+        <h3>Koniec przeklejania</h3>
+        <p>Zamówienia ze sklepu czy Allegro same trafiają do arkusza. Dane z maili same lądują w tabeli. Bez kopiuj-wklej, bez pomyłek.</p>
+      </div>
+      <div class="auto-card">
+        <span class="mono">Powiadomienia</span>
+        <h3>Klient pamięta o wizycie</h3>
+        <p>Automatyczne przypomnienia e-mail lub SMS do klientów: o terminie, o płatności, o odbiorze. Mniej nieodebranych wizyt, mniej dzwonienia.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="pakiety" class="packs">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Konkretne ceny, bez „wyceny indywidualnej"</p>
+        <h2>Pakiety</h2>
+      </div>
+      <div class="pack-grid">
+        <div class="pack">
+          <span class="kod">PAKIET S</span>
+          <h3>Jedna rzecz mniej</h3>
+          <div class="cena">350 zł</div>
+          <p>Automatyzacja jednego powtarzalnego zadania: raport, który dziś sklejasz ręcznie, automatyczny import danych do arkusza albo cykliczne maile z podsumowaniem. Zadanie, które zajmowało 2–3 godziny tygodniowo, wykonuje się samo.</p>
+          <span class="czas">Realizacja: 3–5 dni</span>
+        </div>
+        <div class="pack featured">
+          <span class="kod">PAKIET M</span>
+          <h3>Firma na jednym ekranie</h3>
+          <div class="cena">750 zł</div>
+          <p>Dashboard Twojej firmy: sprzedaż, zamówienia, stany — aktualizowany automatycznie, dostępny z telefonu. Koniec z pytaniem „jak nam idzie w tym miesiącu?" i grzebaniem w pięciu plikach.</p>
+          <span class="czas">Realizacja: 7–10 dni</span>
+        </div>
+        <div class="pack">
+          <span class="kod">PAKIET L</span>
+          <h3>Systemy, które gadają ze sobą</h3>
+          <div class="cena">od 1200 zł</div>
+          <p>Integracja kilku narzędzi: sklep lub Allegro → arkusz → automatyczne powiadomienia, przenoszenie danych między systemami bez przeklejania. Zakres i wycena po 15-minutowej rozmowie.</p>
+          <span class="czas">Realizacja: 2–3 tygodnie</span>
+        </div>
+      </div>
+      <div class="abo">
+        <div>
+          <h3>Abonament „Spokojna głowa"</h3>
+          <p>Dla klientów po zleceniu: opieka nad automatyzacją, drobne poprawki i zmiany bez dodatkowych kosztów. Coś się zmieni w Twojej firmie — automat zmienia się razem z nią.</p>
+        </div>
+        <div class="cena">120 zł<small style="font-size:15px;font-weight:500;color:var(--grey)">/mies.</small></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="o-mnie" class="wrap">
+    <div class="trust-grid">
+      <div class="trust">
+        <p class="eyebrow">Kim jestem</p>
+        <h2 style="margin-bottom:18px">Automatyk przemysłowy. Niezawodność mam we krwi.</h2>
+        <p>Na co dzień utrzymuję w ruchu roboty przemysłowe i linie produkcyjne — środowisko, w którym godzina awarii kosztuje tysiące złotych. Programuję sterowniki, roboty i systemy monitoringu.</p>
+        <p>Tę samą dyscyplinę przenoszę do automatyzacji biurowych: rozwiązania, które po prostu działają, dzień w dzień, bez nadzoru. Buduję je na narzędziach, które już masz — Gmail, Arkusze Google, Twój sklep — więc nie płacisz za żadne dodatkowe licencje.</p>
+      </div>
+      <ul class="facts">
+        <li><span class="mono">✓</span>Płatność i faktura przez Useme — płacisz po odbiorze, bez ryzyka</li>
+        <li><span class="mono">✓</span>Konkretna cena przed startem, zero niespodzianek</li>
+        <li><span class="mono">✓</span>Rozwiązania na darmowych narzędziach — bez abonamentów za software</li>
+        <li><span class="mono">✓</span>Krótkie wideo „przed / po" na życzenie, zanim zdecydujesz</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="kontakt" class="contact">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Kontakt</p>
+        <h2>Powiedz mi, co zabiera Ci najwięcej czasu.</h2>
+      </div>
+      <p>Napisz 2–3 zdania o zadaniu, które robisz ręcznie i którego nie znosisz. Odpowiem w 24 h z informacją, czy da się to zautomatyzować, ile to kosztuje i ile godzin miesięcznie odzyskasz. 15-minutowa rozmowa jest niezobowiązująca i nic nie kosztuje.</p>
+      <a class="btn btn-primary" href="mailto:giernicpl@gmail.com?subject=Automatyzacja%20—%20pytanie">Napisz: giernicpl@gmail.com</a>
+      <p class="mono-note">Odpowiadam w 24 h · Płatność przez Useme · Faktura bez problemu</p>
+    </div>
+  </section>
+</main>
+
+<div class="hazard" aria-hidden="true"></div>
+<footer class="wrap">
+  <div class="foot-in">
+    <span>© 2026 RGAutomatyzacja</span>
+    <span>Raporty · Dane · Dashboardy · Powiadomienia</span>
+  </div>
+</footer>
+
+</body>
+</html>

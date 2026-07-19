@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel sprzedaży — demo | automatyzacje online</title>
+<meta name="description" content="Interaktywny dashboard sprzedaży małej firmy — demo automatyzacji raportowania.">
+<style>
+  :root{
+    --bg:#0F171E; --panel:#17222D; --line:#2A3946; --ink:#E6EDF2;
+    --dim:#8FA0AE; --amber:#F2A70A; --green:#2AA55E; --teal:#4FB3A0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;font-size:16px;line-height:1.5}
+  .mono{font-family:'Consolas','Courier New',monospace}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+  .hazard{height:6px;background:repeating-linear-gradient(-45deg,var(--amber) 0 12px,#0B1218 12px 24px)}
+
+  header{padding:18px 0;border-bottom:1px solid var(--line)}
+  .head-in{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  .brand{font-family:'Consolas','Courier New',monospace;font-size:14px;color:var(--dim)}
+  .brand b{color:var(--ink);font-weight:600}
+  .lamp-box{display:flex;align-items:center;gap:8px;font-family:'Consolas','Courier New',monospace;font-size:12px;color:var(--green)}
+  .lamp{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+  @keyframes pulse{50%{opacity:.4}}
+
+  .title-row{padding:26px 0 6px}
+  h1{font-size:clamp(22px,3vw,30px);font-weight:700;letter-spacing:-.01em}
+  .sub{color:var(--dim);font-size:14.5px;margin-top:4px}
+
+  .controls{display:flex;gap:18px;flex-wrap:wrap;align-items:end;padding:18px 0 8px}
+  .ctrl-label{font-family:'Consolas','Courier New',monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:7px}
+  .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .seg button{
+    background:none;border:none;color:var(--dim);font-family:inherit;
+    font-size:14px;font-weight:600;padding:9px 16px;cursor:pointer;border-right:1px solid var(--line);
+  }
+  .seg button:last-child{border-right:none}
+  .seg button.on{background:var(--amber);color:#141F2A}
+  .seg button:focus-visible{outline:2px solid var(--amber);outline-offset:-2px}
+  select{
+    background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;
+    font-family:inherit;font-size:14px;padding:9px 12px;cursor:pointer;
+  }
+  select:focus-visible{outline:2px solid var(--amber)}
+
+  .grid-kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:14px 0}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .kpi .k-label{font-family:'Consolas','Courier New',monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+  .kpi .k-val{font-size:clamp(24px,3vw,32px);font-weight:700;margin-top:6px;letter-spacing:-.01em}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+  .card h2{font-family:'Consolas','Courier New',monospace;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:14px}
+  .grid-2{display:grid;grid-template-columns:1fr 1.4fr;gap:14px}
+  svg text{font-family:'Segoe UI',system-ui,Arial,sans-serif}
+
+  .donut-wrap{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+  .legend{font-size:14px;display:grid;gap:8px}
+  .legend .sw{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:8px;vertical-align:-1px}
+
+  .bars{display:grid;gap:12px}
+  .bar-row{display:grid;grid-template-columns:170px 1fr 74px;align-items:center;gap:10px;font-size:13.5px}
+  .bar-name{color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar-track{background:#101A22;border-radius:5px;height:16px;overflow:hidden}
+  .bar-fill{background:var(--teal);height:100%;border-radius:5px;transition:width .35s ease}
+  .bar-val{text-align:right;font-family:'Consolas','Courier New',monospace;font-size:12.5px;color:var(--ink)}
+
+  footer{padding:20px 0 30px;font-size:13px;color:var(--dim)}
+  .foot-in{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  footer a{color:var(--amber);text-decoration:none}
+  footer a:hover{text-decoration:underline}
+
+  @media (max-width:820px){
+    .grid-kpi{grid-template-columns:1fr}
+    .grid-2{grid-template-columns:1fr}
+    .bar-row{grid-template-columns:120px 1fr 70px}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="hazard" aria-hidden="true"></div>
+<header>
+  <div class="wrap head-in">
+    <span class="brand"><b>TWOJA-FIRMA</b> / panel sprzedaży · demo</span>
+    <span class="lamp-box"><span class="lamp"></span>DANE AKTUALNE</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="title-row">
+    <h1>Sprzedaż na jednym ekranie</h1>
+    <p class="sub">Dane demonstracyjne: sklep internetowy, styczeń–czerwiec 2026. Filtry działają na żywo — kliknij.</p>
+  </div>
+
+  <div class="controls">
+    <div>
+      <span class="ctrl-label">Kanał sprzedaży</span>
+      <div class="seg" role="group" aria-label="Filtr kanału">
+        <button class="on" data-ch="all">Wszystkie</button>
+        <button data-ch="s">Sklep www</button>
+        <button data-ch="a">Allegro</button>
+      </div>
+    </div>
+    <div>
+      <span class="ctrl-label">Od miesiąca</span>
+      <select id="mFrom" aria-label="Miesiąc początkowy"></select>
+    </div>
+    <div>
+      <span class="ctrl-label">Do miesiąca</span>
+      <select id="mTo" aria-label="Miesiąc końcowy"></select>
+    </div>
+  </div>
+
+  <div class="grid-kpi">
+    <div class="kpi"><span class="k-label">Przychód</span><div class="k-val" id="kRev">—</div></div>
+    <div class="kpi"><span class="k-label">Zamówienia</span><div class="k-val" id="kOrd">—</div></div>
+    <div class="kpi"><span class="k-label">Średni koszyk</span><div class="k-val" id="kAvg">—</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Przychód tygodniowo</h2>
+    <div id="lineChart"></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h2>Udział kanałów</h2>
+      <div class="donut-wrap">
+        <div id="donutChart"></div>
+        <div class="legend" id="donutLegend"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Top 5 produktów</h2>
+      <div class="bars" id="barChart"></div>
+    </div>
+  </div>
+</main>
+
+<div class="hazard" aria-hidden="true"></div>
+<footer>
+  <div class="wrap foot-in">
+    <span>Demo automatyzacji raportowania — dane fikcyjne.</span>
+    <span>Chcesz taki panel dla swojej firmy? <a href="index.html">Wróć do oferty</a></span>
+  </div>
+</footer>
+
+<script>
+var D = {"weeks": [{"w": 1, "m": 1, "s": 1315.3, "a": 2692.5}, {"w": 2, "m": 1, "s": 2692.3, "a": 3626.4}, {"w": 3, "m": 1, "s": 2208.4, "a": 2718.4}, {"w": 4, "m": 1, "s": 3152.3, "a": 2778.2}, {"w": 5, "m": 1, "s": 4162.0, "a": 3112.4}, {"w": 6, "m": 2, "s": 2692.2, "a": 4481.2}, {"w": 7, "m": 2, "s": 1574.0, "a": 3099.5}, {"w": 8, "m": 2, "s": 2151.3, "a": 3003.4}, {"w": 9, "m": 2, "s": 3073.5, "a": 4066.2999999999997}, {"w": 10, "m": 3, "s": 3093.2, "a": 5550.8}, {"w": 11, "m": 3, "s": 4682.7, "a": 3213.5}, {"w": 12, "m": 3, "s": 3784.7, "a": 3698.5}, {"w": 13, "m": 3, "s": 4437.5, "a": 3724.4}, {"w": 14, "m": 3, "s": 3173.3, "a": 2637.0}, {"w": 15, "m": 4, "s": 3281.4, "a": 4029.7}, {"w": 16, "m": 4, "s": 3880.8, "a": 3758.2}, {"w": 17, "m": 4, "s": 3601.3, "a": 4684.4}, {"w": 18, "m": 4, "s": 3762.6000000000004, "a": 4605.4}, {"w": 19, "m": 5, "s": 3420.2, "a": 5584.5}, {"w": 20, "m": 5, "s": 2947.3, "a": 6513.4}, {"w": 21, "m": 5, "s": 4011.4, "a": 5387.8}, {"w": 22, "m": 5, "s": 4280.5, "a": 4543.9}, {"w": 23, "m": 6, "s": 4459.5, "a": 4334.6}, {"w": 24, "m": 6, "s": 3601.3, "a": 5885.9}, {"w": 25, "m": 6, "s": 4452.4, "a": 6119.0}, {"w": 26, "m": 6, "s": 4957.4, "a": 4353.2}], "months": [{"m": 1, "s_rev": 13025.3, "s_ord": 95, "a_rev": 14461.9, "a_ord": 102}, {"m": 2, "s_rev": 9722.9, "s_ord": 72, "a_rev": 14199.3, "a_ord": 109}, {"m": 3, "s_rev": 16745.5, "s_ord": 113, "a_rev": 17778.3, "a_ord": 120}, {"m": 4, "s_rev": 15687.8, "s_ord": 103, "a_rev": 16827.5, "a_ord": 120}, {"m": 5, "s_rev": 16196.7, "s_ord": 126, "a_rev": 24242.8, "a_ord": 161}, {"m": 6, "s_rev": 18383.6, "s_ord": 135, "a_rev": 22115.2, "a_ord": 154}], "prods": [{"p": "Deska do krojenia dębowa", "m": 1, "s": 1079.1, "a": 1762.2}, {"p": "Deska do krojenia dębowa", "m": 2, "s": 792.0, "a": 693.0}, {"p": "Deska do krojenia dębowa", "m": 3, "s": 673.2, "a": 1455.3}, {"p": "Deska do krojenia dębowa", "m": 4, "s": 1376.1, "a": 990.0}, {"p": "Deska do krojenia dębowa", "m": 5, "s": 1366.2, "a": 1653.3}, {"p": "Deska do krojenia dębowa", "m": 6, "s": 1178.1, "a": 1940.4}, {"p": "Etui na klucze", "m": 1, "s": 245.0, "a": 245.0}, {"p": "Etui na klucze", "m": 2, "s": 524.3, "a": 436.1}, {"p": "Etui na klucze", "m": 3, "s": 49.0, "a": 735.0}, {"p": "Etui na klucze", "m": 4, "s": 926.1, "a": 632.1}, {"p": "Etui na klucze", "m": 5, "s": 387.1, "a": 666.4}, {"p": "Etui na klucze", "m": 6, "s": 823.2, "a": 196.0}, {"p": "Kubek termiczny 450ml", "m": 1, "s": 814.2, "a": 986.7}, {"p": "Kubek termiczny 450ml", "m": 2, "s": 331.2, "a": 883.2}, {"p": "Kubek termiczny 450ml", "m": 3, "s": 807.3, "a": 952.2}, {"p": "Kubek termiczny 450ml", "m": 4, "s": 414.0, "a": 959.1}, {"p": "Kubek termiczny 450ml", "m": 5, "s": 966.0, "a": 952.2}, {"p": "Kubek termiczny 450ml", "m": 6, "s": 1366.2, "a": 883.2}, {"p": "Lampka LED na biurko", "m": 1, "s": 1178.1, "a": 1523.2}, {"p": "Lampka LED na biurko", "m": 2, "s": 357.0, "a": 1535.1}, {"p": "Lampka LED na biurko", "m": 3, "s": 1309.0, "a": 1178.1}, {"p": "Lampka LED na biurko", "m": 4, "s": 916.3, "a": 1071.0}, {"p": "Lampka LED na biurko", "m": 5, "s": 1059.1, "a": 2963.1}, {"p": "Lampka LED na biurko", "m": 6, "s": 1880.2, "a": 2570.4}, {"p": "Młynek do kawy ręczny", "m": 1, "s": 864.2, "a": 1162.2}, {"p": "Młynek do kawy ręczny", "m": 2, "s": 1639.0, "a": 1341.0}, {"p": "Młynek do kawy ręczny", "m": 3, "s": 2026.4, "a": 2384.0}, {"p": "Młynek do kawy ręczny", "m": 4, "s": 1475.1, "a": 2220.1}, {"p": "Młynek do kawy ręczny", "m": 5, "s": 3248.2, "a": 3099.2}, {"p": "Młynek do kawy ręczny", "m": 6, "s": 2086.0, "a": 1624.1}, {"p": "Organizer biurkowy drewniany", "m": 1, "s": 932.2, "a": 553.0}, {"p": "Organizer biurkowy drewniany", "m": 2, "s": 1501.0, "a": 782.1}, {"p": "Organizer biurkowy drewniany", "m": 3, "s": 940.1, "a": 553.0}, {"p": "Organizer biurkowy drewniany", "m": 4, "s": 221.2, "a": 466.1}, {"p": "Organizer biurkowy drewniany", "m": 5, "s": 1161.3, "a": 1169.2}, {"p": "Organizer biurkowy drewniany", "m": 6, "s": 1011.2, "a": 932.2}, {"p": "Plecak miejski 20L", "m": 1, "s": 1897.4, "a": 1969.0}, {"p": "Plecak miejski 20L", "m": 2, "s": 1253.0, "a": 1736.3}, {"p": "Plecak miejski 20L", "m": 3, "s": 2327.0, "a": 2416.5}, {"p": "Plecak miejski 20L", "m": 4, "s": 3186.2, "a": 2506.0}, {"p": "Plecak miejski 20L", "m": 5, "s": 1933.2, "a": 1790.0}, {"p": "Plecak miejski 20L", "m": 6, "s": 1933.2, "a": 3490.5}, {"p": "Podkładka pod laptopa bambusowa", "m": 1, "s": 1219.3, "a": 694.2}, {"p": "Podkładka pod laptopa bambusowa", "m": 2, "s": 623.0, "a": 1068.0}, {"p": "Podkładka pod laptopa bambusowa", "m": 3, "s": 703.1, "a": 1406.2}, {"p": "Podkładka pod laptopa bambusowa", "m": 4, "s": 881.1, "a": 1032.4}, {"p": "Podkładka pod laptopa bambusowa", "m": 5, "s": 1504.1, "a": 1504.1}, {"p": "Podkładka pod laptopa bambusowa", "m": 6, "s": 1059.1, "a": 1584.2}, {"p": "Portfel skórzany slim", "m": 1, "s": 1793.1, "a": 1677.0}, {"p": "Portfel skórzany slim", "m": 2, "s": 516.0, "a": 1780.2}, {"p": "Portfel skórzany slim", "m": 3, "s": 1754.4, "a": 2025.3}, {"p": "Portfel skórzany slim", "m": 4, "s": 1780.2, "a": 1793.1}, {"p": "Portfel skórzany slim", "m": 5, "s": 1638.3, "a": 2309.1}, {"p": "Portfel skórzany slim", "m": 6, "s": 1922.1, "a": 2180.1}, {"p": "Powerbank 20000mAh", "m": 1, "s": 1084.2, "a": 1237.1}, {"p": "Powerbank 20000mAh", "m": 2, "s": 959.1, "a": 1237.1}, {"p": "Powerbank 20000mAh", "m": 3, "s": 2418.6, "a": 1112.0}, {"p": "Powerbank 20000mAh", "m": 4, "s": 1765.3, "a": 2460.3}, {"p": "Powerbank 20000mAh", "m": 5, "s": 1098.1, "a": 2863.4}, {"p": "Powerbank 20000mAh", "m": 6, "s": 1668.0, "a": 3016.3}, {"p": "Słuchawki BT douszne", "m": 1, "s": 1542.3, "a": 1860.3}, {"p": "Słuchawki BT douszne", "m": 2, "s": 445.2, "a": 1717.2}, {"p": "Słuchawki BT douszne", "m": 3, "s": 1876.2, "a": 2273.7}, {"p": "Słuchawki BT douszne", "m": 4, "s": 1558.2, "a": 1717.2}, {"p": "Słuchawki BT douszne", "m": 5, "s": 954.0, "a": 3688.8}, {"p": "Słuchawki BT douszne", "m": 6, "s": 1892.1, "a": 1876.2}, {"p": "Ładowarka bezprzewodowa", "m": 1, "s": 376.2, "a": 792.0}, {"p": "Ładowarka bezprzewodowa", "m": 2, "s": 782.1, "a": 990.0}, {"p": "Ładowarka bezprzewodowa", "m": 3, "s": 1861.2, "a": 1287.0}, {"p": "Ładowarka bezprzewodowa", "m": 4, "s": 1188.0, "a": 980.1}, {"p": "Ładowarka bezprzewodowa", "m": 5, "s": 881.1, "a": 1584.0}, {"p": "Ładowarka bezprzewodowa", "m": 6, "s": 1564.2, "a": 1821.6}]};
+var M_NAMES = ["","styczeń","luty","marzec","kwiecień","maj","czerwiec"];
+var ch = "all", mF = 1, mT = 6;
+
+function zl(n){ return Math.round(n).toLocaleString("pl-PL") + " zł"; }
+function val(o, s, a){ return ch === "s" ? o[s] : ch === "a" ? o[a] : o[s] + o[a]; }
+
+var selF = document.getElementById("mFrom"), selT = document.getElementById("mTo");
+for (var m = 1; m <= 6; m++){
+  selF.add(new Option(M_NAMES[m], m));
+  selT.add(new Option(M_NAMES[m], m));
+}
+selF.value = 1; selT.value = 6;
+
+function drawLine(wks){
+  var W = 1000, H = 260, padL = 56, padR = 14, padT = 14, padB = 34;
+  var iw = W - padL - padR, ih = H - padT - padB;
+  var vals = wks.map(function(w){ return val(w, "s", "a"); });
+  var max = Math.max.apply(null, vals.concat([1]));
+  max = Math.ceil(max / 2000) * 2000;
+  var pts = vals.map(function(v, i){
+    var x = padL + (wks.length > 1 ? i * iw / (wks.length - 1) : iw / 2);
+    var y = padT + ih - (v / max) * ih;
+    return [x, y];
+  });
+  var line = pts.map(function(p){ return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ");
+  var area = "M" + pts[0][0].toFixed(1) + "," + (padT + ih) +
+    " L" + pts.map(function(p){ return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" L") +
+    " L" + pts[pts.length-1][0].toFixed(1) + "," + (padT + ih) + " Z";
+  var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block" role="img" aria-label="Wykres przychodu tygodniowo">';
+  for (var g = 0; g <= 2; g++){
+    var gy = padT + ih - (g / 2) * ih;
+    s += '<line x1="' + padL + '" y1="' + gy + '" x2="' + (W - padR) + '" y2="' + gy + '" stroke="#2A3946" stroke-width="1"/>';
+    s += '<text x="' + (padL - 8) + '" y="' + (gy + 4) + '" text-anchor="end" font-size="12" fill="#8FA0AE">' + (max * g / 2 / 1000) + ' tys.</text>';
+  }
+  s += '<path d="' + area + '" fill="rgba(242,167,10,.13)"/>';
+  s += '<polyline points="' + line + '" fill="none" stroke="#F2A70A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
+  var step = Math.ceil(wks.length / 9);
+  wks.forEach(function(w, i){
+    if (i % step === 0 || i === wks.length - 1){
+      s += '<text x="' + pts[i][0].toFixed(1) + '" y="' + (H - 10) + '" text-anchor="middle" font-size="12" fill="#8FA0AE">tydz. ' + w.w + '</text>';
+    }
+    s += '<circle cx="' + pts[i][0].toFixed(1) + '" cy="' + pts[i][1].toFixed(1) + '" r="2.5" fill="#F2A70A"><title>Tydzień ' + w.w + ': ' + zl(vals[i]) + '</title></circle>';
+  });
+  s += '</svg>';
+  document.getElementById("lineChart").innerHTML = s;
+}
+
+function drawDonut(sRev, aRev){
+  var tot = sRev + aRev, r = 62, c = 2 * Math.PI * r;
+  var sFrac = tot ? sRev / tot : 0;
+  var s = '<svg viewBox="0 0 170 170" style="width:170px;height:170px" role="img" aria-label="Udział kanałów sprzedaży">';
+  s += '<circle cx="85" cy="85" r="' + r + '" fill="none" stroke="#F2A70A" stroke-width="26"/>';
+  s += '<circle cx="85" cy="85" r="' + r + '" fill="none" stroke="#2AA55E" stroke-width="26" stroke-dasharray="' + (sFrac * c).toFixed(1) + ' ' + c.toFixed(1) + '" transform="rotate(-90 85 85)"/>';
+  s += '<text x="85" y="80" text-anchor="middle" font-size="13" fill="#8FA0AE">razem</text>';
+  s += '<text x="85" y="100" text-anchor="middle" font-size="15" font-weight="700" fill="#E6EDF2">' + Math.round(tot/1000) + ' tys.</text>';
+  s += '</svg>';
+  document.getElementById("donutChart").innerHTML = s;
+  var sp = tot ? Math.round(sFrac * 100) : 0;
+  document.getElementById("donutLegend").innerHTML =
+    '<span><span class="sw" style="background:#2AA55E"></span>Sklep www — ' + sp + '% (' + zl(sRev) + ')</span>' +
+    '<span><span class="sw" style="background:#F2A70A"></span>Allegro — ' + (tot ? 100 - sp : 0) + '% (' + zl(aRev) + ')</span>';
+}
+
+function drawBars(top){
+  var max = top.length ? top[0][1] : 1;
+  document.getElementById("barChart").innerHTML = top.map(function(t){
+    return '<div class="bar-row"><span class="bar-name" title="' + t[0] + '">' + t[0] + '</span>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + (t[1] / max * 100).toFixed(1) + '%"></div></div>' +
+      '<span class="bar-val">' + zl(t[1]) + '</span></div>';
+  }).join("");
+}
+
+function render(){
+  var mos = D.months.filter(function(m){ return m.m >= mF && m.m <= mT; });
+  var rev = 0, ord = 0, sRev = 0, aRev = 0;
+  mos.forEach(function(m){
+    rev += val(m, "s_rev", "a_rev"); ord += val(m, "s_ord", "a_ord");
+    sRev += m.s_rev; aRev += m.a_rev;
+  });
+  document.getElementById("kRev").textContent = zl(rev);
+  document.getElementById("kOrd").textContent = ord.toLocaleString("pl-PL");
+  document.getElementById("kAvg").textContent = ord ? (rev / ord).toLocaleString("pl-PL", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " zł" : "—";
+
+  drawLine(D.weeks.filter(function(w){ return w.m >= mF && w.m <= mT; }));
+  if (ch === "s"){ drawDonut(sRev, 0); }
+  else if (ch === "a"){ drawDonut(0, aRev); }
+  else { drawDonut(sRev, aRev); }
+
+  var byProd = {};
+  D.prods.forEach(function(p){
+    if (p.m >= mF && p.m <= mT){ byProd[p.p] = (byProd[p.p] || 0) + val(p, "s", "a"); }
+  });
+  var top = Object.keys(byProd).map(function(k){ return [k, byProd[k]]; })
+    .sort(function(x, y){ return y[1] - x[1]; }).slice(0, 5);
+  drawBars(top);
+}
+
+Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function(b){
+  b.addEventListener("click", function(){
+    Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function(x){ x.classList.remove("on"); });
+    b.classList.add("on"); ch = b.dataset.ch; render();
+  });
+});
+selF.addEventListener("change", function(){ mF = +selF.value; if (mF > mT){ mT = mF; selT.value = mT; } render(); });
+selT.addEventListener("change", function(){ mT = +selT.value; if (mT < mF){ mF = mT; selF.value = mF; } render(); });
+
+render();
+</script>
+</body>
+</html>
