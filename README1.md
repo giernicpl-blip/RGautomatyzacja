@@ -2,8 +2,8 @@
 
 Automatyzacje dla małych firm — raporty, dane i powiadomienia, które robią się same.
 
-**Strona:** https://TWOJA-NAZWA.github.io/NAZWA-REPO/
-**Demo dashboardu:** https://TWOJA-NAZWA.github.io/NAZWA-REPO/dashboard.html
+**Strona:** https://giernicpl-blip.github.io/RGautomatyzacja/
+**Demo dashboardu:** https://giernicpl-blip.github.io/RGautomatyzacja/dashboard.html
 **Kontakt:** giernicpl@gmail.com
 
 ## Co robię
